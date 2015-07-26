@@ -1,6 +1,5 @@
 ﻿var path = require('path');
 
-
 // Postgres DATABASE_URL = postgres://user:passwd@host:port/database
 // SQLite   DATABASE_URL = sqlite://:@:/
 var url = process.env.DATABASE_URL.match(/(.*)\:\/\/(.*?)\:(.*)@(.*)\:(.*)\/(.*)/);
@@ -38,10 +37,24 @@ exports.Quiz = Quiz;
 sequelize.sync().then(function() {
   // then(..) ejecuta el manejador una vez creada la tabla
   Quiz.count().then(function (count){     
-       if(count === 0) {   // la tabla se inicializa solo si está vacía
+       if(count === 0) { 
+	  // la tabla se inicializa solo si está vacía
+	  // si se meten más preguntas (registros) es preciso borrar la tabla (entorno local), y resetearla (en heroku)
             Quiz.bulkCreate( 
-               		[ {pregunta: 'Capital de Italia',  respuesta: 'Roma'},
-			  {pregunta: 'Capital de Portugal',  respuesta: 'Lisboa'}
+               		[ {pregunta: 'Capital de Alemania',  respuesta: 'Berlín'},
+			  {pregunta: 'Capital de España',  respuesta: 'Madrid'},
+			  {pregunta: 'Capital de Francia',  respuesta: 'París'},
+			  {pregunta: 'Capital de Grecia',  respuesta: 'Atenas'},
+			  {pregunta: 'Capital de Irlanda',  respuesta: 'Dublín'},
+			  {pregunta: 'Capital de Italia',  respuesta: 'Roma'},
+			  {pregunta: 'Capital de Noruega',  respuesta: 'Oslo'},
+			  {pregunta: 'Capital de Polonia',  respuesta: 'Varsovia'},
+			  {pregunta: 'Capital de Portugal',  respuesta: 'Lisboa'},
+			  {pregunta: 'Capital de Rumanía',  respuesta: 'Bucarest'},
+			  {pregunta: 'Capital de Reino Unido',  respuesta: 'Londres'},
+			  {pregunta: 'Capital de Rusia',  respuesta: 'Moscú'},
+			  {pregunta: 'Capital de San Marino',  respuesta: 'San Marino'},
+			  {pregunta: 'Capital de Suecia',  respuesta: 'Estocolmo'},
 			]
 	    ).then(function(){console.log('Base de datos (tabla quiz) inicializada')});
        };

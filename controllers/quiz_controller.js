@@ -19,22 +19,24 @@ exports.load = function(req, res, next, quizId) {
 // GET /quizes/
 exports.index = function(req, res) {
    models.Quiz.findAll().then(
-	 function(quizes) {
-   	    res.render('quizes/index.ejs', { quizes: quizes});
-         }
+	function(quizes) {
+	    res.render('quizes/index.ejs', { quizes: quizes});
+        }
    ).catch(function(error) { next(error);});
 };
+
 
 // GET /quizes/:id
 exports.show = function(req, res) {
     	res.render('quizes/show', { quiz: req.quiz});
 };
 
+
 // GET /quizes/:id/answer
 exports.answer = function(req, res) {
       var resultado = 'Incorrecto';
-      if (req.query.respuesta === req.quiz.respuesta) {
-      //if (req.query.respuesta.trim().match(/^roma$/i)){
+      var patt = new RegExp('^' + req.quiz.respuesta + '$', 'i');
+      if (patt.exec(req.query.respuesta.trim())) {
           resultado = 'Correcto';
       }
       res.render('quizes/answer', {quiz: req.quiz, respuesta: resultado});
