@@ -20,7 +20,10 @@ app.use(partials());
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.urlencoded({ extended: false }));
+// eliminamos parámetro configuración incluido por defecto con express.generator
+// Así el MW bodyparser.unlencoded() analiza correctamente los nombres de los parámetros del formulario (_form.ejs) del objeto quiz y genera el objeto req.body.quiz
+app.use(bodyParser.urlencoded()); 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

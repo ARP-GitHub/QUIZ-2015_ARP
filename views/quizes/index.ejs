@@ -1,11 +1,14 @@
+    <div class = "columna">
 	<form method="get" action="/quizes">
 			<label for="search">Buscar pregunta: </label>
 			<input type="text" name="search" value="Texto a buscar"/>
 			<input type="submit" value="Buscar">
 	</form>
+	<p>
+	<a href="/quizes/new"><button type="button">Crear pregunta</button></a>
+    </div>
 
-
-
+    <div class ="columna">
 	<table>
     		<% var i; for (i=0; i < quizes.length; i++) { %>        
        			<tr><td>
@@ -13,3 +16,4 @@
 			</td></tr> 
     		<% } %>
 	</table>
+    </div>
