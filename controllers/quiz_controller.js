@@ -1,6 +1,6 @@
 ﻿var models = require('../models/models.js');
 
-// Autoload - factoriza el código si ruta incluye :quizId
+// Autoload :id
 exports.load = function(req, res, next, quizId) {
    models.Quiz.findById(quizId).then(
       function(quiz) {
@@ -12,7 +12,7 @@ exports.load = function(req, res, next, quizId) {
 	    next(new Error('No existe quizId=' + quizId));
          }
       }
-   ).catch(function(error) { next(error);});
+   ).catch(function(error) { next(error)});
 };
 
 
@@ -21,16 +21,16 @@ exports.index = function(req, res) {
    var busqueda = req.query.search;
    // Por defecto se muestran todas las preguntas al dar a preguntas
    if (!!busqueda) {
-	busqueda = '%' + busqueda + '%';
+	busqueda = '%' + busqueda + '%'; //Añade al principio y al final los %
 	busqueda = busqueda.toLowerCase().trim();
 	//busqueda = busqueda.replace(' ','%');
-	busqueda = busqueda.replace(/\s/g,'%');
+	busqueda = busqueda.replace(/\s/g,'%'); //reemplaza los espacios por %
    }
    models.Quiz.findAll((busqueda) ? {where: ["lower(pregunta) like ?", busqueda], order:["pregunta"]} : {}).then(
 	function(quizes) {
-	    res.render('quizes/index.ejs', { quizes: quizes});
+	    res.render('quizes/index.ejs', { quizes: quizes, errors: []});
         }
-   ).catch(function(error) { next(error);});
+   ).catch(function(error){next(error)});
 };
 
 
@@ -41,14 +41,14 @@ exports.index = function(req, res) {
 //	 busqueda = busqueda.replace(/\s/g,'%');
 //	 models.Quiz.findAll({where: ["lower(pregunta) like ?", busqueda], order:["pregunta"]}).then(
 //	     function(quizes) {
-// 		res.render('quizes/index.ejs', { quizes: quizes});
+// 		res.render('quizes/index.ejs', { quizes: quizes, errors: []});
 //             }
 //   	 ).catch(function(error) { next(error);});
 //      }
 //      else {
 //	  models.Quiz.findAll().then(
 //	     function(quizes) {
-//	       res.render('quizes/index.ejs', { quizes: quizes});
+//	       res.render('quizes/index.ejs', { quizes: quizes, errors: []});
 //           }
 //        ).catch(function(error) { next(error);});
 //     }
@@ -57,7 +57,7 @@ exports.index = function(req, res) {
 
 // GET /quizes/:id
 exports.show = function(req, res) {
-    	res.render('quizes/show', { quiz: req.quiz});
+    	res.render('quizes/show', { quiz: req.quiz, errors: []});
 };
 
 
@@ -67,11 +67,15 @@ exports.answer = function(req, res) {
       // En la respuesta se admite mayúsculas/minúsculas indistintamente
       // Se eliminan espacios inicial y final si hubiera
       // Se han de introducir los acentos correctos! (idioma español)
+      // req.query.respuesta es la respuesta introducida desde el formulario
+      // req.quiz.respuesta es la respuesta en la BD
       var patt = new RegExp('^' + req.quiz.respuesta + '$', 'i');
       if (patt.exec(req.query.respuesta.trim())) {
           resultado = 'Correcto'; 
       }
-      res.render('quizes/answer', {quiz: req.quiz, respuesta: resultado});
+      res.render('quizes/answer',
+		 {quiz: req.quiz, respuesta: resultado, errors: []}
+      );
 };
 
 
@@ -79,12 +83,11 @@ exports.answer = function(req, res) {
 
 // GET /quizes/new
 exports.new = function(req, res) {
-  // Creamos un objeto nuevo que luego modificamos
+  // Creamos un objeto nuevo quiz que luego modificamos
   var quiz = models.Quiz.build(
     {pregunta: "Pregunta", respuesta: "Respuesta"}
   );
-
-  res.render('quizes/new', {quiz: quiz});
+  res.render('quizes/new', {quiz: quiz, errors: []});
 };
 
 
@@ -92,9 +95,16 @@ exports.new = function(req, res) {
 exports.create = function(req, res) {
   // Creamos un objeto nuevo con los datos del formulario
   var quiz = models.Quiz.build( req.body.quiz );
-
-// guarda en DB los campos pregunta y respuesta de quiz
-  quiz.save({fields: ["pregunta", "respuesta"]}).then(function(){
-    res.redirect('/quizes');  
-  })   // res.redirect: Redirección HTTP (URL relativo) a lista de preguntas
+  quiz.validate().then(
+    function(err){
+      if (err) {
+        res.render('quizes/new', {quiz: quiz, errors: err.errors});
+      } else {
+	// save: guarda en DB campos pregunta y respuesta de quiz
+        quiz
+	.save({fields: ["pregunta", "respuesta"]})
+	.then( function(){ res.redirect('/quizes')}) 
+      }      // res.redirect: Redirección HTTP (URL relativo) a lista de preguntas
+    }
+  );
 };

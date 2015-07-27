@@ -39,22 +39,15 @@ sequelize.sync().then(function() {
   Quiz.count().then(function (count){     
        if(count === 0) { 
 	  // la tabla se inicializa solo si está vacía
-	  // si se meten más preguntas (registros) es preciso borrar la tabla (entorno local), y resetearla (en heroku)
+	  // si se meten más preguntas aquí (registros) es preciso borrar la tabla (entorno local), y resetearla (en heroku)
             Quiz.bulkCreate( 
                		[ {pregunta: 'Capital de Alemania',  respuesta: 'Berlín'},
 			  {pregunta: 'Capital de España',  respuesta: 'Madrid'},
 			  {pregunta: 'Capital de Francia',  respuesta: 'París'},
-			  {pregunta: 'Capital de Grecia',  respuesta: 'Atenas'},
-			  {pregunta: 'Capital de Irlanda',  respuesta: 'Dublín'},
 			  {pregunta: 'Capital de Italia',  respuesta: 'Roma'},
-			  {pregunta: 'Capital de Noruega',  respuesta: 'Oslo'},
-			  {pregunta: 'Capital de Polonia',  respuesta: 'Varsovia'},
 			  {pregunta: 'Capital de Portugal',  respuesta: 'Lisboa'},
 			  {pregunta: 'Capital de Rumanía',  respuesta: 'Bucarest'},
-			  {pregunta: 'Capital de Reino Unido',  respuesta: 'Londres'},
-			  {pregunta: 'Capital de Rusia',  respuesta: 'Moscú'},
-			  {pregunta: 'Capital de San Marino',  respuesta: 'San Marino'},
-			  {pregunta: 'Capital de Suecia',  respuesta: 'Estocolmo'},
+			  {pregunta: 'Capital de San Marino',  respuesta: 'San Marino'}
 			]
 	    ).then(function(){console.log('Base de datos (tabla quiz) inicializada')});
        };

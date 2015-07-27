@@ -24,7 +24,11 @@ body {
 }
 
 section > div {
-    padding: 20px;
+    padding: 0.2em;
+}
+
+section {
+    min-height: 250px;
 }
 
 header, nav, section, footer {
@@ -33,7 +37,7 @@ header, nav, section, footer {
 }
 
 nav span {
-    margin: 0px 10px 0px 0px;
+    margin: 0em 1em 0em 0em;
 }
 
 /*  
@@ -41,3 +45,20 @@ a {
   color: #00B7FF;
 }
 */
+
+.autor {
+  margin: 1em auto;
+}
+
+.columna {
+  float: left;
+  border-left: 1px solid #269800;
+  text-align:left;
+  margin: 0.5em 0.5em 0em 0em;
+  padding-left: 0.5em;
+}
+
+#ErrorMsgs { 
+  color: #f61;
+  font-size: smaller
+}
