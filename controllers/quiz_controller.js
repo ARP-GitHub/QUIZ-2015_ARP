@@ -1,5 +1,13 @@
 ﻿var models = require('../models/models.js');
 
+var temas = [
+		 {value: 'Otro', text: 'Otro'},
+                 {value: 'Humanidades', text: 'Humanidades'},
+                 {value: 'Ocio', text: 'Ocio'},
+                 {value: 'Ciencia', text: 'Ciencia'},
+                 {value: 'Tecnología', text: 'Tecnología'}
+	       ];
+
 // Autoload :id
 exports.load = function(req, res, next, quizId) {
    models.Quiz.findById(quizId).then(
@@ -17,16 +25,18 @@ exports.load = function(req, res, next, quizId) {
 
 
 // GET /quizes/
-exports.index = function(req, res) {
+exports.index = function(req, res, next) {
    var busqueda = req.query.search;
    // Por defecto se muestran todas las preguntas al dar a preguntas
+   // Se ordena por orden ascendente (ASC)
+   // Nota: las minúsculas van después que las mayúsculas; así bbb irá después de CCC
    if (!!busqueda) {
 	busqueda = '%' + busqueda + '%'; //Añade al principio y al final los %
 	busqueda = busqueda.toLowerCase().trim();
 	//busqueda = busqueda.replace(' ','%');
 	busqueda = busqueda.replace(/\s/g,'%'); //reemplaza los espacios por %
    }
-   models.Quiz.findAll((busqueda) ? {where: ["lower(pregunta) like ?", busqueda], order:["pregunta"]} : {}).then(
+   models.Quiz.findAll((busqueda) ? {where: ["lower(pregunta) like ?", busqueda], order:"pregunta ASC"} : {order:"pregunta ASC"}).then(
 	function(quizes) {
 	    res.render('quizes/index.ejs', { quizes: quizes, errors: []});
         }
@@ -38,14 +48,14 @@ exports.index = function(req, res) {
 //	 busqueda = '%' + busqueda + '%';
 //	 busqueda = busqueda.toLowerCase().trim();
 //	 busqueda = busqueda.replace(/\s/g,'%');
-//	 models.Quiz.findAll({where: ["lower(pregunta) like ?", busqueda], order:["pregunta"]}).then(
+//	 models.Quiz.findAll({where: ["lower(pregunta) like ?", busqueda], order:"pregunta ASC"}).then(
 //	     function(quizes) {
 // 		res.render('quizes/index.ejs', { quizes: quizes, errors: []});
 //             }
 //   	 ).catch(function(error) { next(error);});
 //      }
 //      else {
-//	  models.Quiz.findAll().then(
+//	  models.Quiz.findAll({order:"pregunta ASC"}).then(
 //	     function(quizes) {
 //	       res.render('quizes/index.ejs', { quizes: quizes, errors: []});
 //           }
@@ -84,9 +94,9 @@ exports.answer = function(req, res) {
 exports.new = function(req, res) {
   // Creamos un objeto nuevo quiz que luego modificamos
   var quiz = models.Quiz.build(
-    {pregunta: "Pregunta", respuesta: "Respuesta"}
+    {pregunta: "Pregunta", respuesta: "Respuesta", tema: "Tema"}
   );
-  res.render('quizes/new', {quiz: quiz, errors: []});
+  res.render('quizes/new', {quiz: quiz, temas: temas, errors: []});
 };
 
 
@@ -101,7 +111,7 @@ exports.create = function(req, res) {
       } else {
 	// save: guarda en DB campos pregunta y respuesta de quiz
         quiz
-	.save({fields: ["pregunta", "respuesta"]})
+	.save({fields: ["pregunta", "respuesta", "tema"]})
 	.then( function(){ res.redirect('/quizes')}) 
       }      // res.redirect: Redirección HTTP (URL relativo) a lista de preguntas
     }
@@ -120,13 +130,14 @@ exports.edit = function(req, res) {
 exports.update = function(req, res) {
   req.quiz.pregunta  = req.body.quiz.pregunta;
   req.quiz.respuesta = req.body.quiz.respuesta;
+  req.quiz.tema = req.body.quiz.tema;
   req.quiz.validate().then(
     function(err){
       if (err) {
         res.render('quizes/edit', {quiz: req.quiz, errors: err.errors});
       } else {
         req.quiz     // save: guarda campos pregunta y respuesta en DB
-        .save( {fields: ["pregunta", "respuesta"]})
+        .save( {fields: ["pregunta", "respuesta", "tema"]})
         .then( function(){ res.redirect('/quizes');});
       }     // Redirección HTTP a lista de preguntas (URL relativo)
     }
@@ -136,9 +147,8 @@ exports.update = function(req, res) {
 
 // DELETE /quizes/:id
 exports.destroy = function(req, res) {
-  req.quiz.destroy().then( function() {
-    res.redirect('/quizes');
-  }).catch(function(error){next(error)});
+  req.quiz.destroy().then( function() {res.redirect('/quizes');}
+  ).catch(function(error){next(error)});
 };
 
 //  console.log("req.quiz.id: " + req.quiz.id);
